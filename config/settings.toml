@@ -1,0 +1,6 @@
+# Example values only; replace with the physical board used in your setup.
+# Inner corners, NOT the number of squares. Columns correspond to OpenCV width.
+[chessboard]
+columns = 9
+rows = 6
+square_size_mm = 25.0
