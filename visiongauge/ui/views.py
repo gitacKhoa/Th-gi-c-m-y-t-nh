@@ -72,7 +72,7 @@ def render_results(workflow: MeasurementWorkflow) -> None:
         )
         for warning in workflow.result.warnings:
             st.caption(warning)
-        st.caption("Số lẻ hiển thị không biểu thị độ chính xác đã kiểm chứng. Chưa phân loại dung sai.")
+        st.caption("Số lẻ hiển thị không biểu thị độ chính xác đã kiểm chứng. Bật Kiểm tra dung sai để đánh giá theo tiêu chuẩn đã nhập.")
 
 
 def render_debug(workflow: MeasurementWorkflow) -> None:

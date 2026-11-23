@@ -6,6 +6,7 @@ from visiongauge import __version__
 from visiongauge.config import ChessboardConfig, ConfigurationError, load_config
 from .views import render_debug, render_results, render_status
 from .workflow import MeasurementWorkflow
+from .tolerance_panel import render_tolerance_controls, render_tolerance_result
 
 
 GEOMETRY_CHOICES = {
@@ -35,11 +36,20 @@ def main() -> None:
     )
     st.title("VisionGauge")
     st.caption(f"Đo kích thước không tiếp xúc · Chessboard · v{__version__}")
-    page = st.sidebar.radio("Trang", ["Đo kích thước", "Camera Calibration"], key="app_page")
+    page = st.sidebar.radio("Trang", ["Đo kích thước", "Quy trình đo", "Camera Calibration", "Lịch sử"], key="app_page")
+    if page == "Quy trình đo":
+        from .inspection_page import render_inspection_page
+        render_inspection_page()
+        return
+    if page == "Lịch sử":
+        from .history_page import render_history_page
+        render_history_page()
+        return
     if page == "Camera Calibration":
         from .calibration_page import render_calibration_page
         render_calibration_page()
         return
+    st.info("Trang này dùng xem trước và debug thuật toán. Để đo có calibration bắt buộc, lưu lịch sử và xuất báo cáo, chọn trang Quy trình đo.")
     if st.session_state.pop("measurement_calibration_requested", False):
         st.session_state["image_geometry"] = "Dùng calibration đang áp dụng"
 
@@ -78,6 +88,9 @@ def main() -> None:
         st.caption("Chế độ dùng calibration tự khử méo ảnh đầu vào. Các lựa chọn khác chỉ xác nhận điều kiện ảnh. Homography không thay thế hiệu chỉnh méo ống kính.")
         with st.expander("Tùy chọn xử lý"):
             segmentation_label = st.selectbox("Tách đường viền", list(SEGMENTATION_CHOICES), key="segmentation")
+
+    with st.sidebar:
+        tolerance_controls = render_tolerance_controls()
 
     try:
         board = ChessboardConfig(columns=columns, rows=rows, square_size_mm=size)
@@ -144,5 +157,6 @@ def main() -> None:
 
     render_status(workflow)
     render_results(workflow)
+    render_tolerance_result(workflow, tolerance_controls)
     if st.toggle("Xem các bước xử lý ảnh (debug)", key="show_debug"):
         render_debug(workflow)

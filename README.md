@@ -3,7 +3,7 @@
 Hệ thống đo kích thước và kiểm tra dung sai sản phẩm bằng thị giác không tiếp xúc.
 Mẫu hiệu chuẩn duy nhất là **Chessboard/Checkerboard**; không sử dụng ArUco.
 
-## Trạng thái hiện tại — nhiệm vụ 4
+## Trạng thái hiện tại — nhiệm vụ 7
 
 Đã có pipeline OpenCV độc lập với Streamlit: đọc/kiểm tra ảnh, tìm góc bàn cờ,
 kiểm tra homography, tách contours và đo chiều dài/chiều rộng trong mặt phẳng mm.
@@ -17,7 +17,20 @@ xem/xóa ảnh đã thêm và tải cả bộ ảnh JPEG dưới dạng ZIP.
 Có bảng so sánh trước/sau trên cùng bộ ảnh và CSV tham chiếu tùy chọn.
 Xem [hướng dẫn giao diện](docs/ui.md) và [camera calibration](docs/camera_calibration.md).
 
-Chưa triển khai phân loại dung sai, lưu lịch sử CSV/SQLite hoặc báo cáo nghiệp vụ.
+Có module đánh giá hàng loạt độc lập, CSV mẫu trống, sai số tuyệt đối/tương đối,
+MAE/RMSE, tổng hợp theo sản phẩm/điều kiện chụp và xuất biểu đồ/CSV.
+Xem [hướng dẫn đánh giá](docs/evaluation.md) và [dataset mẫu](datasets/template/).
+
+Có kiểm tra dung sai chiều dài/chiều rộng với sai lệch trên/dưới có dấu,
+giới hạn bao gồm hai biên và ba trạng thái ĐẠT / KHÔNG ĐẠT / KHÔNG THỂ ĐÁNH GIÁ.
+Bật **Kiểm tra dung sai** trong thanh bên trang đo để cấu hình và xem độ lệch.
+Xem [hướng dẫn dung sai](docs/tolerance.md). Chưa xét độ không đảm bảo đo.
+
+Trang **Quy trình đo** tích hợp calibration bắt buộc, kiểm tra chất lượng,
+đo và dung sai, xử lý lô ảnh/chụp liên tiếp, UUID/thời gian/trạng thái riêng từng
+lượt và lưu SQLite gồm ảnh + snapshot cấu hình/calibration. Trang **Lịch sử**
+cho xem lại, thống kê ba kết luận, lọc và xuất PDF/CSV, kèm cảnh báo gần giới hạn.
+Xem [hướng dẫn quy trình đầy đủ](docs/full_flow.md).
 Chưa có dữ liệu thực nghiệm để kết luận độ chính xác hoặc mức cải thiện sau hiệu chuẩn.
 
 ## Cài đặt trên Windows (PowerShell)
@@ -53,7 +66,11 @@ trong môi trường dự án. Nếu có môi trường cũ được giữ lại
 
 Mở địa chỉ được Streamlit in ra, thường là http://localhost:8501.
 Dừng bằng `Ctrl+C`. Có thể dùng tác vụ **VisionGauge: Run Streamlit** của VS Code.
-Trong thanh bên, chọn **Đo kích thước** hoặc **Camera Calibration**.
+Trong thanh bên, chọn **Quy trình đo** cho luồng có calibration bắt buộc,
+lưu lịch sử và xuất báo cáo; tạo/nạp calibration tại **Camera Calibration**
+hoặc nạp JSON ngay trong trang quy trình. **Lịch sử** đọc kết quả đã lưu trên máy.
+
+Trang **Đo kích thước** cũ dùng xem trước/debug thuật toán:
 Upload ảnh/chụp camera, nhập đúng số góc trong và cạnh ô, chọn điều kiện méo ảnh,
 sau đó phát hiện bàn cờ hoặc bắt đầu đo. Với camera đã hiệu chuẩn, chọn
 **Dùng calibration đang áp dụng**; phần mềm tự khử méo trước pipeline đo.
@@ -72,12 +89,16 @@ Các module nghiệp vụ không phụ thuộc Streamlit. Cấu hình dùng chun
 | [visiongauge/calibration/](visiongauge/calibration/) | Bàn cờ, nội tham, khử méo, JSON và homography | Đã có |
 | [visiongauge/processing/](visiongauge/processing/) | Gaussian Blur, Otsu/Canny, loại contours bàn cờ | Đã có |
 | [visiongauge/measurement/](visiongauge/measurement/) | Hình học mm, pipeline, vẽ kích thước và so sánh trước/sau | Đã có |
-| [visiongauge/tolerance/](visiongauge/tolerance/) | So sánh kích thước chuẩn/dung sai, phân loại ba trạng thái | Khung module |
-| [visiongauge/ui/](visiongauge/ui/) | Giao diện đo và Camera Calibration | Đã tích hợp |
-| [visiongauge/storage/](visiongauge/storage/) | Lịch sử CSV/SQLite và xuất báo cáo | Khung module |
+| [visiongauge/evaluation/](visiongauge/evaluation/) | Dataset, đo hàng loạt, thống kê, biểu đồ và CLI đánh giá | Đã có |
+| [visiongauge/tolerance/](visiongauge/tolerance/) | So sánh danh nghĩa/dung sai, phân loại ba trạng thái, policy mở rộng | Đã tích hợp giao diện |
+| [visiongauge/workflow/](visiongauge/workflow/) | Điều phối đầy đủ, chất lượng, mã lỗi và snapshot lượt đo | Đã có |
+| [visiongauge/ui/](visiongauge/ui/) | Xem trước, quy trình đầy đủ, Camera Calibration và lịch sử | Đã tích hợp |
+| [visiongauge/storage/](visiongauge/storage/) | SQLite, ảnh/lịch sử bất biến, retry lưu | Đã có |
+| [visiongauge/reporting/](visiongauge/reporting/) | CSV UTF-8 và PDF tiếng Việt từ lịch sử | Đã có |
 | [config/settings.toml](config/settings.toml) | Cấu hình chung | Đã có bộ đọc và kiểm tra |
 | [tests/](tests/) | Kiểm thử cấu hình, dependency và giao diện | Đã có |
 | [data/](data/) | Ảnh và dữ liệu hiệu chuẩn | Có thể tạo ảnh tổng hợp bằng CLI test |
+| [datasets/template/](datasets/template/) | Mẫu dataset và CSV tham chiếu thực nghiệm | Mẫu trống để người dùng điền |
 | [reports/](reports/) | Ảnh chú thích và báo cáo tương lai | Có ảnh chú thích thử nghiệm tổng hợp |
 
 Luồng dự kiến: ảnh → hiệu chỉnh méo → tìm bàn cờ/thiết lập tọa độ mm →
@@ -131,9 +152,26 @@ Các test kiểm tra:
 - Hiệu chuẩn từ tọa độ và ảnh tổng hợp có camera biết trước, JSON không hợp lệ,
   thiếu ảnh, thiếu đa dạng góc chụp, độ phân giải sai, nhất quán tọa độ khử méo.
 - So sánh theo cặp, không tính độ chính xác khi thiếu số đo tham chiếu.
+- Công thức sai số, MAE/RMSE và tổng hợp nhóm; đo hàng loạt, giữ ảnh thất bại,
+  xuất CSV/biểu đồ và CLI đánh giá với đường dẫn Unicode.
 
 Các test không cần camera, dữ liệu thực nghiệm hoặc kết nối mạng sau khi cài thư viện.
 Kiểm thử này chỉ xác minh nền tảng phần mềm, **không đánh giá độ chính xác đo**.
+
+Kết quả nhiệm vụ 7: **398 tests passed** trên Windows/Python 3.11.9, gồm 55 test
+mới về full flow, calibration bắt buộc, lịch sử SQLite, CSV/PDF và giao diện.
+Đã render/kiểm tra trực quan PDF tiếng Việt 4 trang bằng dữ liệu kiểm thử riêng.
+Chi tiết, giới hạn và cấu hình tài nguyên kiểm thử: [full flow](docs/full_flow.md).
+
+Kết quả nhiệm vụ 6: **343 tests passed** trên Windows/Python 3.11.9, gồm 72 test
+mới cho công thức dung sai, dữ liệu không hợp lệ và luồng giao diện bằng AppTest.
+Kiểm tra giới hạn bao gồm cả hai biên; phép đo thất bại không được kết luận ĐẠT.
+Chi tiết quy ước dung sai có dấu và cách sử dụng nằm trong
+[hướng dẫn kiểm tra dung sai](docs/tolerance.md).
+
+Kết quả nhiệm vụ 5: **271 tests passed**, gồm 54 test mới về đánh giá dataset,
+công thức thống kê, tổng hợp nhóm, xuất báo cáo và CLI. Không có kết luận độ chính
+xác thực nghiệm khi chưa có dataset thực và số đo tham chiếu.
 
 Kết quả nhiệm vụ 4: **208 tests passed** trên Windows/Python 3.11.9.
 Các test gồm luồng upload → hiệu chuẩn → lưu/nạp → áp dụng → đo và so sánh
@@ -162,7 +200,9 @@ Streamlit tối thiểu 1.66.1 để dùng giao diện và kiểm thử upload/c
 Chỉ dùng `opencv-python-headless` vì giao diện hiển thị ảnh sẽ do Streamlit đảm nhiệm;
 không dùng `cv2.imshow`. Bản này vẫn có API bàn cờ và camera `VideoCapture`.
 Không cài đồng thời nhiều biến thể OpenCV trong cùng môi trường.
-CSV và SQLite có sẵn trong thư viện chuẩn Python; chưa tạo database ở giai đoạn này.
+CSV và SQLite dùng thư viện chuẩn Python. Database được tạo khi dùng lịch sử,
+mặc định tại `data/history.sqlite3`; có thể cấu hình biến `VISIONGAUGE_HISTORY_DB`.
+ReportLab xuất PDF, pypdf/PDFium kiểm thử báo cáo.
 
 Đã kiểm thử thuật toán bằng ảnh tổng hợp; chưa có kiểm thử camera hoặc dữ liệu
 sản phẩm thực tế. Python 3.12 là

@@ -11,3 +11,4 @@ data/*
 reports/*
 !reports/.gitkeep
 .streamlit/secrets.toml
+tmp/

@@ -1,5 +1,10 @@
 # Giao diện đo — nhiệm vụ 3
 
+Nhiệm vụ 7 bổ sung **Quy trình đo** (calibration bắt buộc, lô ảnh/camera, chất
+lượng, dung sai và lưu tự động) cùng **Lịch sử** (xem lại, thống kê, PDF/CSV).
+Xem [hướng dẫn full flow](full_flow.md). Trang **Đo kích thước** mô tả dưới đây
+được giữ cho xem trước/debug.
+
 Chạy từ thư mục gốc:
 
 ```powershell
@@ -14,6 +19,12 @@ Nhập số góc trong ngang/dọc và cạnh ô vuông thực tế. Nút **Phá
 hiển thị các góc; nút **Bắt đầu đo** cũng có thể tự phát hiện trước khi đo.
 Chọn điều kiện méo ảnh hoặc [calibration đang áp dụng](camera_calibration.md).
 Ảnh gốc/kết quả hiển thị cạnh nhau, kích thước tính bằng mm, tải kết quả dưới dạng PNG.
+
+Bật **Kiểm tra dung sai** ở thanh bên để nhập danh nghĩa và sai lệch có dấu cho
+từng chiều. [Kết luận dung sai](tolerance.md) tự cập nhật theo số đo hiện tại;
+phép đo thất bại/thiếu cấu hình không được coi là ĐẠT. Bảng chỉ rõ giới hạn,
+độ lệch và chiều vượt dung sai. Cấu hình dung sai được giữ khi chuyển trang trong
+phiên; kết luận không được tái sử dụng nếu ảnh hoặc phép đo đã thay đổi.
 
 Thiết kế nền trắng/trung tính dùng [.streamlit/config.toml](../.streamlit/config.toml).
 Các cột xếp dọc ở màn hình hẹp. Phần debug hiển thị grayscale, Gaussian Blur,

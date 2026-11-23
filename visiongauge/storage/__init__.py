@@ -1,1 +1,5 @@
-"""Reserved for measurement history in CSV/SQLite and report export."""
+"""Persistent inspection history."""
+
+from .history import HistoryError, HistoryStore, default_history_path, summarize_records
+
+__all__ = ["HistoryError", "HistoryStore", "default_history_path", "summarize_records"]
