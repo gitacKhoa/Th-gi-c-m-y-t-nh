@@ -1,6 +1,7 @@
 """Production flow: explicit batch/camera attempts, calibrated inspection, save."""
 
 from dataclasses import asdict
+from datetime import datetime, timezone
 from hashlib import sha256
 import json
 
@@ -11,6 +12,7 @@ from visiongauge.config import ChessboardConfig, ConfigurationError, load_config
 from visiongauge.errors import VisionGaugeError
 from visiongauge.storage import HistoryStore, HistoryError
 from visiongauge.workflow import InspectionSettings, QualityOptions, inspect_batch
+from visiongauge.image_io import decode_image
 from .run_views import render_counts, render_run_detail, records_table
 from .tolerance_panel import render_tolerance_controls
 
@@ -97,6 +99,51 @@ def render_inspection_page() -> None:
         st.caption(f"Yêu cầu camera {resolution}; ảnh thực vẫn phải khớp calibration. Chụp và đo từng ảnh, rồi chụp ảnh tiếp theo.")
         image = st.camera_input("Chụp sản phẩm và bàn cờ", key="flow_camera", resolution=resolution)
         images = [(image.name, image.getvalue())] if image is not None else []
+        if image is not None:
+            # Keep and download the exact bytes returned by the camera widget.  Do
+            # not decode/re-encode the image: that would change the dataset source.
+            image_bytes = image.getvalue()
+            decoded = decode_image(image_bytes)
+            height_px, width_px = decoded.shape[:2]
+            stem = image.name.rsplit(".", 1)[0] or "capture"
+            metadata = {
+                "filename": image.name,
+                "width_px": width_px,
+                "height_px": height_px,
+                "bytes": len(image_bytes),
+                "sha256": sha256(image_bytes).hexdigest(),
+                "captured_at_utc": datetime.now(timezone.utc).isoformat(),
+                "product_id": product,
+                "notes": notes,
+                "camera_resolution": resolution,
+                "calibration_fingerprint": calibration.fingerprint if calibration else None,
+            }
+            with st.container(border=True):
+                st.subheader("Lưu ảnh vừa chụp")
+                st.caption(
+                    f"Ảnh gốc {width_px} × {height_px} px · {len(image_bytes):,} bytes. "
+                    "File tải xuống giữ nguyên bytes, không resize hoặc nén lại."
+                )
+                col_image, col_meta = st.columns(2)
+                with col_image:
+                    st.download_button(
+                        "Tải ảnh gốc",
+                        data=image_bytes,
+                        file_name=image.name,
+                        mime=image.type or "image/jpeg",
+                        key="download_captured_image",
+                        width="stretch",
+                    )
+                with col_meta:
+                    st.download_button(
+                        "Tải metadata JSON",
+                        data=json.dumps(metadata, ensure_ascii=False, indent=2).encode("utf-8"),
+                        file_name=f"{stem}.json",
+                        mime="application/json",
+                        key="download_captured_metadata",
+                        width="stretch",
+                    )
+                st.info("Bạn có thể đặt ảnh và JSON này vào thư mục dataset để bổ sung nhãn/kích thước đo chuẩn.")
     else:
         files = st.file_uploader("Ảnh sản phẩm (có thể chọn nhiều ảnh)", type=["png", "jpg", "jpeg", "bmp", "tif", "tiff", "webp"],
                                  accept_multiple_files=True, key="flow_images")
