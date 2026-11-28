@@ -1,1 +1,9 @@
 image_path,product_id,reference_length_mm,reference_width_mm,condition_id,camera_id,lighting,view_angle_deg,camera_distance_mm,reference_instrument,captured_at,notes
+,,124/132,93/101,,,,,,,,
+,,64.5,64.5,,,,,,,,
+,,140,140,,,,,,,,
+,,108/143,105/140,,,,,,,,
+,,,,,,,,,,,
+"test1,jpg",1,105.3,105.3,,,,,300,,,zoom75%
+test2.jpg,2,104,78,,,,,300,,,zoom84%
+"test3,jpg",3,114,112,,,,,300,,,

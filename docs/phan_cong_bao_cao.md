@@ -186,7 +186,7 @@ Quy tắc nói chung: **phép đo thất bại hoặc thiếu điều kiện th�
 ## 7. Tài liệu project để từng người học
 
 - Tổng quan và cài/chạy: [README](../README.md), [full flow](full_flow.md).
-- Người 1: [giao diện](ui.md), [full flow](full_flow.md).
+- Người 1: [lời thoại chi tiết và kịch bản demo](loi_thoai_nguoi_1.md), [giao diện](ui.md), [full flow](full_flow.md).
 - Người 2: [camera calibration](camera_calibration.md), mã [calibration](../visiongauge/calibration/).
 - Người 3: [đo lường](measurement.md), mã [processing](../visiongauge/processing/) và [measurement](../visiongauge/measurement/).
 - Người 4: [dung sai](tolerance.md), [đánh giá](evaluation.md), mã [workflow](../visiongauge/workflow/), [storage](../visiongauge/storage/) và [reporting](../visiongauge/reporting/).
